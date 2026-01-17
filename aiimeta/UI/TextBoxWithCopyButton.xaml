@@ -1,0 +1,20 @@
+﻿<UserControl x:Class="aiimeta.UI.TextBoxWithCopyButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:aiimeta.UI"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="300">
+    <Grid>
+        <TextBox x:Name="textBox" Text="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=Text}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextWrapping="Wrap" IsReadOnly="True" IsReadOnlyCaretVisible="True" VerticalScrollBarVisibility="Auto"/>
+        <Button Content="&#xE8C8;" Width="32" Height="32" Padding="1,1,0,0" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" HorizontalAlignment="Right" VerticalAlignment="Top" Click="Button_Click">
+            <Button.Visibility>
+                <MultiBinding Converter="{x:Static local:Converters.Or}">
+                    <Binding ElementName="textBox" Path="IsMouseOver"/>
+                    <Binding RelativeSource="{RelativeSource Self}" Path="IsMouseOver"/>
+                </MultiBinding>
+            </Button.Visibility>
+        </Button>
+    </Grid>
+</UserControl>

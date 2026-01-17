@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <StartupObject>aiimeta.Program</StartupObject>
+    <ApplicationIcon>UI\Everaldo-Crystal-Clear-App-picture-view.ico</ApplicationIcon>
+    <ApplicationManifest>App.manifest</ApplicationManifest>
+    <AssemblyTitle>aiimeta - AI Image Metadata Viewer</AssemblyTitle>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <Version>0.1.0</Version>
+    <Company>Alissa Sabre</Company>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="UI\Everaldo-Crystal-Clear-App-picture-view.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Formats\ComfyNodeTypeData.json">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ComfyNodeTypeData.tt</DependentUpon>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Formats\ComfyNodeTypeData.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ComfyNodeTypeData.json</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /D /Y $(ProjectDir)Formats\ComfyNodeTypeData.json $(OutDir)" />
+  </Target>
+
+</Project>

@@ -1,0 +1,109 @@
+﻿<Window x:Class="aiimeta.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:aiimeta.UI"
+        mc:Ignorable="d"
+        Title="aiimeta" Height="500" Width="800" Loaded="Window_Loaded" Closed="Window_Closed">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- This allows XAML designer to show controls in an appropriate sizes and positions of Fluent UI. -->
+                <d:ResourceDictionary Source="pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="SymbolButton" TargetType="ButtonBase" BasedOn="{StaticResource {x:Type ButtonBase}}">
+                <Setter Property="Width" Value="32"/>
+                <Setter Property="Height" Value="32"/>
+                <Setter Property="Padding" Value="1,1,0,0"/>
+                <Setter Property="FontFamily" Value="Segoe Fluent Icons, Segoe MDL2 Assets"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid         Grid.Row="0" Grid.Column="0" Grid.RowSpan="6" Background="#A0A0A0" AllowDrop="True" Drop="image_Drop" DragOver="image_DragOver">
+            <TextBlock Text="(Drag and drop an image here.)" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding ElementName=image, Path=ActualWidth, Converter={x:Static local:Converters.IsZero}}" />
+            <Image x:Name="image" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+        </Grid>
+
+        <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="6" Width="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="Transparent"/>
+
+        <TextBox      Grid.Row="0" Grid.Column="2" x:Name="filename" Margin="0,0,40,10" TextWrapping="NoWrap" VerticalAlignment="Top"/>
+        <Button       Grid.Row="0" Grid.Column="2" Content="&#xE710;" Style="{StaticResource SymbolButton}" Margin="0,0,5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Click="fileOpenButton_Click"/>
+
+        <local:TextBoxWithCopyButton
+                      Grid.Row="1" Grid.Column="2" x:Name="positive" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,5,0"/>
+
+        <GridSplitter Grid.Row="2" Grid.Column="2" Height="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="Transparent"/>
+
+        <local:TextBoxWithCopyButton
+                      Grid.Row="3" Grid.Column="2" x:Name="negative" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,5,0"/>
+
+        <GridSplitter Grid.Row="4" Grid.Column="2" Height="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="Transparent"/>
+
+        <TabControl   Grid.Row="5" Grid.Column="2" x:Name="metadataArea" Margin="0,0,5,0" TabStripPlacement="Bottom" Padding="0">
+            <TabItem Header="Metadata">
+                <ListView x:Name="metadataList" d:ItemsSource="{d:SampleData ItemCount=5}" Background="{DynamicResource TextControlBackground}" BorderBrush="{DynamicResource TextControlElevationBorderBrush}" SizeChanged="metadataList_SizeChanged" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Key" DisplayMemberBinding="{Binding Key}" Width="120"/>
+                            <!-- The width of the Value column changes automatically, 
+                                 and the Width property defines the minimum width. 
+                                 See the code behind for details. -->
+                            <GridViewColumn Header="Value" DisplayMemberBinding="{Binding Value}" Width="120"/>
+                        </GridView>
+                    </ListView.View>
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Static GridView.GridViewItemContainerStyleKey}}">
+                            <Setter Property="MinHeight" Value="18"/>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Command="local:Commands.Copy"/>
+                            <MenuItem Command="local:Commands.CopyRow">
+                                <MenuItem.Style>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Header" Value="Copy Rows"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItems.Count}" Value="1">
+                                                <Setter Property="Header" Value="Copy Row"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </MenuItem.Style>
+                            </MenuItem>
+                        </ContextMenu>
+                    </ListView.ContextMenu>
+                    <ListView.CommandBindings>
+                        <CommandBinding Command="local:Commands.Copy"    Executed="metadataList_Command_Executed" CanExecute="metadataList_Command_CanExecute"/>
+                        <CommandBinding Command="local:Commands.CopyRow" Executed="metadataList_Command_Executed" CanExecute="metadataList_Command_CanExecute"/>
+                    </ListView.CommandBindings>
+                </ListView>
+            </TabItem>
+            <TabItem Header="Parameters" Visibility="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=Content.Text.Length, Converter={x:Static local:Converters.IsPositive}}">
+                <local:TextBoxWithCopyButton x:Name="parameters"    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            </TabItem>
+            <TabItem Header="Workflow"   Visibility="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=Content.Text.Length, Converter={x:Static local:Converters.IsPositive}}">
+                <local:TextBoxWithCopyButton x:Name="comfyWorkflow" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            </TabItem>
+            <TabItem Header="Prompt"     Visibility="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=Content.Text.Length, Converter={x:Static local:Converters.IsPositive}}">
+                <local:TextBoxWithCopyButton x:Name="comfyPrompt"   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
