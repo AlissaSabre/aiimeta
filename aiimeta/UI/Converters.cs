@@ -11,8 +11,17 @@ using System.Windows.Data;
 namespace aiimeta.UI
 {
     /// <summary>Set of several value converters.</summary>
+    /// <remarks>
+    /// This class defines several value converters as its inner class.
+    /// It also provides stock objects of value converters for use in XAML.
+    /// </remarks>
     public static class Converters
     {
+        #region Boxing
+
+        // Static objects to avoid frequent boxing.
+        // Perhaps this is an overkill for aiimeta. :)
+
         private static readonly object True = true;
 
         private static readonly object False = false;
@@ -32,15 +41,18 @@ namespace aiimeta.UI
             return DependencyProperty.UnsetValue;
         }
 
+        #endregion
+
         public static readonly BooleanToVisibilityConverter BoolToVisibility = new BooleanToVisibilityConverter();
 
         public static readonly PositiveNumberConverter IsPositive = new PositiveNumberConverter();
 
-        /// <summary>Number to bool converter based on its positiveness.</summary>
+        /// <summary>Number to bool or Visibility converter based on its positiveness.</summary>
         /// <remarks>
         /// The source may be either double, int, or long.
+        /// The target may be either bool or <see cref="Visibility"/>.
         /// A positive value is converted to true, and a zero or negative number to false.
-        /// This converter can't convert a bool value back to a number, so
+        /// This converter can't convert a bool or Visibility value back to a number, so
         /// it is for <see cref="BindingMode.OneWay"/> and <see cref="BindingMode.OneTime"/> bindings only.
         /// </remarks>
         [ValueConversion(typeof(double), typeof(bool))]
@@ -70,12 +82,13 @@ namespace aiimeta.UI
 
         public static readonly ZeroNumberConverter IsZero = new ZeroNumberConverter();
 
-        /// <summary>Number to Visibility converter based on its zeroness.</summary>
+        /// <summary>Number to bool or Visibility converter based on its zeroness.</summary>
         /// <remarks>
         /// The source may be either double, int, or long.
-        /// A value of zero is converted to <see cref="Visibility.Visible"/>, 
-        /// and any other vlaues to <see cref="Visibility.Collapsed"/>.
-        /// This converter can't convert a <see cref="Visibility"/> value back to a number, so
+        /// The target may be either bool or <see cref="Visibility"/>.
+        /// A value of zero is converted to true <see cref="Visibility.Visible"/>, 
+        /// and any other vlaues to false or <see cref="Visibility.Collapsed"/>.
+        /// This converter can't convert a bool or <see cref="Visibility"/> value back to a number, so
         /// it is for <see cref="BindingMode.OneWay"/> and <see cref="BindingMode.OneTime"/> bindings only.
         /// </remarks>
         [ValueConversion(typeof(double), typeof(bool))]

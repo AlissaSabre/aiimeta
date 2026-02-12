@@ -21,8 +21,12 @@ namespace aiimeta.UI
     /// </summary>
     public partial class MainWindow : Window
     {
+        /// <summary>Format of the title string to be shown on the app title bar.</summary>
+        /// <remarks>
+        /// <c>{0}</c> is a filename, and <c>{1}</c> is <see cref="OriginalTitle"/>.</remarks>
         private const string TitleFormat = "{0} ― {1}";
 
+        /// <summary>App title as defined in XAML.</summary>
         private string OriginalTitle;
 
         public MainWindow()
@@ -30,6 +34,9 @@ namespace aiimeta.UI
             InitializeComponent();
             OriginalTitle = Title;
 
+            // Creates an ImageFactory instance.
+            // Since we don't use a DI framework,
+            // we need to keep its subcomponents and dispose them appropriately.
             HttpClient = new HttpClient();
             MetadataReader = new MetadataReader(HttpClient);
             var parser = new AggregateMetadataParser();
@@ -48,6 +55,8 @@ namespace aiimeta.UI
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            // In this version, we do all required initialization in the constructor,
+            // and we have nothing to do here.
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -71,6 +80,8 @@ namespace aiimeta.UI
             e.Handled = true;
         }
 
+        /// <summary>Receives a file drag-and-drop'ed on the image area.</summary>
+        /// <remarks>When more than one files are dropped, uses only the first one, ignoring others.</remarks>
         private async void image_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -89,6 +100,13 @@ namespace aiimeta.UI
                 var names = data.GetData(CFStr.FILEDESCRIPTOR) as string[];
                 if (names?.Length >= 1)
                 {
+                    // CFSTR_FILEDESCEIPTOR-based drag-and-drop sends only file names,
+                    // and directory paths or other information on their locations
+                    // are unavailable.
+                    // If CFSTR_INETURL is also present,
+                    // it is likely that the file is from the internet,
+                    // and the CFSTR_INETURL content is (by specification) an absolute URL.
+                    // So, we try to grab the URL and handle it like a full path name.
                     var stream = data.GetData(CFStr.FILECONTENTS, 0);
                     var url = data.GetData(CFStr.INETURL)?.AsString() ?? names[0];
                     await LoadImageAsync(stream, names[0], url);
@@ -123,6 +141,8 @@ namespace aiimeta.UI
                 await LoadImageAsync(dlg.FileName);
             }
         }
+
+        #region Image file loading
 
         private Task LoadImageAsync(string path)
         {
@@ -189,6 +209,8 @@ namespace aiimeta.UI
                 metadataArea.SelectedIndex = 0;
             }
         }
+
+        #endregion
 
         private void metadataList_Command_Executed(object sender, ExecutedRoutedEventArgs e)
         {

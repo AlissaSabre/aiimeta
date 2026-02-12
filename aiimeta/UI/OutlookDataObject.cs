@@ -19,13 +19,65 @@ namespace aiimeta.UI
     /// <para>
     /// Although the class name and the above summary suggest that
     /// this class does something specific to Outlook, it doesn't.
-    /// In fact, this class adds support for CFSTR_FILEDESCRIPTOR based file transfer
+    /// In fact, this class adds support for <c>CFSTR_FILEDESCRIPTOR</c> based file transfer
     /// to the standard <see cref="DataObject"/>.
     /// </para>
     /// <para>
-    /// This class is provided by Matty Boy.
-    /// I have downloaded it from https://gist.github.com/MattyBoy4444/521547
-    /// made subtle changes, and extended this comment.
+    /// To use this class to receive files through drag-and-drop operation,
+    /// you first create its instance
+    /// by passing an <see cref="System.Windows.IDataObject"/> instance
+    /// received from the <see cref="UIElement.Drop"/> event.
+    /// Then, you can use it as just an ordinary <c>IDataObject</c>
+    /// except for <c>"FileContents"</c> and <c>"FileGroupDescriptorW"</c>
+    /// (as well as "FileGroupDescriptor" if you ever need an ANSI version.)
+    /// This class expands the functionality of the standard <c>IDataObject</c> implementation
+    /// to support the <c>CFSTR_FILEDESCRIPTOR</c> based file transfer.
+    /// </para>
+    /// <para>
+    /// When you call <see cref="GetData(string)"/> of this class with <c>"FileGroupDescriptorW"</c>,
+    /// it returns an array of strings (<c>string[]</c>) containing the list of file names to be transferred.
+    /// When you call <see cref="GetData(string)"/> of this class with <c>"FileContents"</c>,
+    /// it returns an array of <see cref="MemoryStream"/>s containing the content bytes of files to be transferred.
+    /// You can match a file name with its content by the index number.
+    /// </para>
+    /// <para>
+    /// You can also use <see cref="GetData(string, int)"/>
+    /// by passing "FileContents" in <c>format</c> and an index number in <c>index</c>
+    /// to get a single <see cref="MemoryStream"/> object for a single file content.
+    /// It works with lower memory footprint if you process dropped files one-by-one,
+    /// in exchange for a risk that the clipboard content changes before handling the last file.
+    /// </para>
+    /// <example>
+    /// async void MyDragEventHandler(object sender, DragEventArgs e)
+    /// {
+    ///     OutlookDataObject data = new OutlookDataObject(e.Data);
+    ///     if (data.GetDataPresent("FileGroupDescriptorW"))
+    ///     {
+    ///         string[] names = (string[])data.GetData("FileGroupDescriptorW");
+    ///         for (int i = 0; i &lt; names.Length; i++)
+    ///         {
+    ///             using (Stream outstream = File.Create(names[i]))
+    ///             {
+    ///                 MemoryStream content = data.GetData("FileContents", i);
+    ///                 await content.CopyToAsync(outstream);
+    ///             }
+    ///         }
+    ///     }
+    /// }
+    /// </example>
+    /// <para>
+    /// Note the following C++ macro to string mapping when using this class:
+    /// <list type="bullet">
+    /// <term><c>CFSTR_FILEDESCEIPTORA</c></term><item><c>"FileGroupDescriptor"</c></item>
+    /// <term><c>CFSTR_FILEDESCEIPTORW</c></term><item><c>"FileGroupDescriptorW"</c></item>
+    /// <term><c>CFSTR_FILECONTENTS</c></term><item><c>"FileContents"</c></item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// This class is originally provided by Matty Boy.
+    /// Alissa has downloaded it from https://gist.github.com/MattyBoy4444/521547
+    /// and made some changes primarily to remove its use of a private method of the framework
+    /// (via reflection) to improve the .NET version compatibility.
     /// </para>
     /// </remarks>
     public class OutlookDataObject : System.Windows.IDataObject
@@ -222,7 +274,7 @@ namespace aiimeta.UI
         /// </returns>
         public object GetData(string format, bool autoConvert)
         {
-            //handle the "FileGroupDescriptor" and "FileContents" format request in this class otherwise pass through to underlying IDataObject 
+            //handle the "FileGroupDescriptor" and "FileContents" format request in this class otherwise pass through to underlying IDataObject
             switch (format)
             {
                 case "FileGroupDescriptor":
@@ -237,7 +289,7 @@ namespace aiimeta.UI
                         fileGroupDescriptorStream.Read(fileGroupDescriptorBytes, 0, fileGroupDescriptorBytes.Length);
                         fileGroupDescriptorStream.Close();
 
-                        //copy the file group descriptor into unmanaged memory 
+                        //copy the file group descriptor into unmanaged memory
                         fileGroupDescriptorAPointer = Marshal.AllocHGlobal(fileGroupDescriptorBytes.Length);
                         Marshal.Copy(fileGroupDescriptorBytes, 0, fileGroupDescriptorAPointer, fileGroupDescriptorBytes.Length);
 
@@ -319,10 +371,10 @@ namespace aiimeta.UI
 
                 case "FileContents":
                     //override the default handling of FileContents which returns the
-                    //contents of the first file as a memory stream and instead return                    
-                    //a array of MemoryStreams containing the data to each file dropped                    
+                    //contents of the first file as a memory stream and instead return
+                    //a array of MemoryStreams containing the data to each file dropped
                     //
-                    // FILECONTENTS requires a companion FILEGROUPDESCRIPTOR to be                     
+                    // FILECONTENTS requires a companion FILEGROUPDESCRIPTOR to be
                     // available so we bail out if we don't find one in the data object.
 
                     string fgdFormatName;
@@ -332,7 +384,7 @@ namespace aiimeta.UI
                         fgdFormatName = "FileGroupDescriptor";
                     else
                         return null;
-                    //get the array of filenames which lets us know how many file contents exist                    
+                    //get the array of filenames which lets us know how many file contents exist
                     string[] fileContentNames = (string[])this.GetData(fgdFormatName);
 
                     //create a MemoryStream array to store the file contents
@@ -505,6 +557,7 @@ namespace aiimeta.UI
                         // the original code by Matty Boy doesn't.
                         // I don't know why.
                         // For now, I leave it as it is.
+                        // -- Alissa.
                     }
             }
 

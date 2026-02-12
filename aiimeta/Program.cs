@@ -9,6 +9,7 @@ using aiimeta.UI;
 
 namespace aiimeta
 {
+    /// <summary>Provides the main entry point of the aiimeta app.</summary>
     public class Program
     {
         [STAThread]
