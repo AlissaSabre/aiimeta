@@ -1,21 +1,26 @@
 ﻿using System.Configuration;
 using System.Data;
+using System.Globalization;
 using System.Windows;
 
 namespace aiimeta.UI
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    /// <remarks>
-    /// Unlike usual WPF apps, the main entry point of the aiimeta app is not in this class.
-    /// It is defined in <see cref="Program"/>.
-    /// </remarks>
+    /// <summary>Custom startup code.</summary>
     public partial class App : Application
     {
         public App()
         {
-            InitializeComponent();
+            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+            CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+        }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+            MainWindow = new MainWindow();
+            MainWindow.Show();
         }
     }
 

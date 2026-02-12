@@ -6,7 +6,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <StartupObject>aiimeta.Program</StartupObject>
     <ApplicationIcon>UI\Everaldo-Crystal-Clear-App-picture-view.ico</ApplicationIcon>
     <ApplicationManifest>App.manifest</ApplicationManifest>
     <AssemblyTitle>aiimeta - AI Image Metadata Viewer</AssemblyTitle>
@@ -16,6 +15,14 @@
     <Version>0.1.0</Version>
     <Company>Alissa Sabre</Company>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Page Remove="UI\App.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="UI\App.xaml" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="UI\Everaldo-Crystal-Clear-App-picture-view.ico" />
