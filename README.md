@@ -118,11 +118,15 @@ and never tries to _normalize_ the terms.
 
 ## Legalies, Credits, and Acknowledgements
 
-### Acknowledgement
+### Acknowledgements
 
 This app is inspired and heavily influenced by
 [Stable-Diffusion Prompt Reader](https://github.com/receyuki/stable-diffusion-prompt-reader) by Rhys Yang.
-The author of this app, Alissa Sabre, appreciates Yang for their remarkable work.
+Alissa, the author of aiimeta, appreciates Yang for their remarkable work.
+
+The drag-and-drop code relies on the [OutlookDataObject](aiimeta/UI/OutlookDataObject.cs) class 
+originally written by @MattyBoy4444 and published on [Gist](https://gist.github.com/MattyBoy4444/521547).
+Alissa, the author of aiimeta, appreciates Matty for his great code.
 
 ### License
 
@@ -163,4 +167,4 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMA
 
 ### Copyright
 
-aiimeta is written and distributed by Alissa Sabre.
+aiimeta as a whole is written, owned, and distributed by Alissa Sabre.
