@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using aiimeta.Formats;
-
-namespace aiimeta.Reader
+namespace aiimeta.Formats
 {
 
     public class AggregateMetadataParser : IMetadataParser

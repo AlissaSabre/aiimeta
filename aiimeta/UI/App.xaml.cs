@@ -23,17 +23,17 @@ namespace aiimeta.UI
 
             ServiceProvider = new ServiceCollection()
                 .AddSingleton<MainWindow, MainWindow>()
-                .AddSingleton<ImageFactory>(provider =>
+                .AddSingleton<IImageFactory>(provider =>
                     new ImageFactory(
-                        provider.GetRequiredService<MetadataReader>(),
-                        provider.GetRequiredService<AggregateMetadataParser>(),
+                        provider.GetRequiredService<IMetadataReader>(),
+                        provider.GetRequiredService<IMetadataParser>(),
                         provider.GetRequiredService<HttpClient>())
                     {
                         MaxPreviewWidth = SystemParameters.PrimaryScreenWidth * 0.5,
                         MaxPreviewHeight = SystemParameters.PrimaryScreenHeight * 0.5,
                     })
-                .AddSingleton<MetadataReader, MetadataReader>()
-                .AddSingleton<AggregateMetadataParser, AggregateMetadataParser>()
+                .AddSingleton<IMetadataReader, MetadataReader>()
+                .AddSingleton<IMetadataParser, AggregateMetadataParser>()
                 .AddSingleton<HttpClient, HttpClient>()
                 .BuildServiceProvider();
         }
@@ -51,5 +51,4 @@ namespace aiimeta.UI
             ServiceProvider.Dispose();
         }
     }
-
 }

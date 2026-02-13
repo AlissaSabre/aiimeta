@@ -11,7 +11,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 
-using aiimeta.Formats;
 using aiimeta.Reader;
 
 namespace aiimeta.UI
@@ -29,14 +28,14 @@ namespace aiimeta.UI
         /// <summary>App title as defined in XAML.</summary>
         private string OriginalTitle;
 
-        public MainWindow(ImageFactory image_factory)
+        public MainWindow(IImageFactory image_factory)
         {
             InitializeComponent();
             OriginalTitle = Title;
             ImageFactory = image_factory;
         }
 
-        private readonly ImageFactory ImageFactory;
+        private readonly IImageFactory ImageFactory;
 
         private void image_DragOver(object sender, DragEventArgs e)
         {

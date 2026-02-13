@@ -12,7 +12,7 @@ using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 
 namespace aiimeta.Reader
 {
-    public class MetadataReader : IDisposable
+    public class MetadataReader : IMetadataReader, IDisposable
     {
         private readonly HttpClient HttpClient;
 

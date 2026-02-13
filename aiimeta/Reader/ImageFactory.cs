@@ -8,29 +8,19 @@ using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 
+using aiimeta.Formats;
+
 namespace aiimeta.Reader
 {
-    public interface IImageObject : IDisposable
+    public class ImageFactory : IImageFactory
     {
-        string Name { get; }
-        string FullName { get; }
+        private readonly IMetadataReader MetadataReader;
 
-        Metadata Metadata { get; }
-
-        ParsedMetadata ParsedMetadata { get; }
-
-        MemoryStream GetPreviewStream();
-    }
-
-    public class ImageFactory
-    {
-        private readonly MetadataReader MetadataReader;
-
-        private readonly AggregateMetadataParser MetadataParser;
+        private readonly IMetadataParser MetadataParser;
 
         private readonly HttpClient HttpClient;
 
-        public ImageFactory(MetadataReader reader, AggregateMetadataParser parser, HttpClient http)
+        public ImageFactory(IMetadataReader reader, IMetadataParser parser, HttpClient http)
         {
             MetadataReader = reader;
             MetadataParser = parser;
@@ -100,7 +90,7 @@ namespace aiimeta.Reader
             return MetadataReader.Read(image);
         }
 
-        protected ParsedMetadata GetParsedMetadata(Metadata metadata)
+        protected ParsedMetadata GetParsedMetadata(IMetadata metadata)
         {
             var parsed = new ParsedMetadata();
             parsed.Add(ImageKey, string.Format(ImageFormat, 
@@ -140,13 +130,13 @@ namespace aiimeta.Reader
 
             public string FullName { get; }
 
-            private Metadata? _Metadata = null;
+            private IMetadata? _Metadata = null;
 
-            public Metadata Metadata => _Metadata ?? (_Metadata = Factory.GetMetadata(Image));
+            public IMetadata Metadata => _Metadata ?? (_Metadata = Factory.GetMetadata(Image));
 
-            private ParsedMetadata? _ParsedMetadata = null;
+            private IParsedMetadata? _ParsedMetadata = null;
 
-            public ParsedMetadata ParsedMetadata => _ParsedMetadata ?? (_ParsedMetadata = Factory.GetParsedMetadata(Metadata));
+            public IParsedMetadata ParsedMetadata => _ParsedMetadata ?? (_ParsedMetadata = Factory.GetParsedMetadata(Metadata));
 
             public ImageObject(ImageFactory factory, Image image, string name, string full_name)
             {
