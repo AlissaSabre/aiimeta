@@ -7,14 +7,10 @@ using SixLabors.ImageSharp;
 
 namespace aiimeta.Reader
 {
+    /// <summary>Reads raw image metadata out of the ImageSharp.Image.</summary>
     public interface IMetadataReader
     {
-        Metadata Read(Uri uri);
-
-        Metadata Read(string path);
-
-        Metadata Read(Stream stream);
-
+        /// <summary>Reads raw image metadata out of the ImageSharp.Image.</summary>
         Metadata Read(Image image);
     }
 }

@@ -12,52 +12,8 @@ using SixLabors.ImageSharp.Metadata.Profiles.Exif;
 
 namespace aiimeta.Reader
 {
-    public class MetadataReader : IMetadataReader, IDisposable
+    public class MetadataReader : IMetadataReader
     {
-        private readonly HttpClient HttpClient;
-
-        public MetadataReader(HttpClient http)
-        {
-            HttpClient = http;
-        }
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        public Metadata Read(Uri uri)
-        {
-            if (uri.IsFile)
-            {
-                return Read(uri.LocalPath);
-            }
-            else
-            {
-                var stream = HttpClient.GetStreamAsync(uri).Result;
-                return Read(stream!);
-            }
-        }
-
-        public Metadata Read(string path)
-        {
-            using var image = Image.Load(path);
-            return Read(image);
-        }
-
-        public Metadata Read(Stream stream)
-        {
-            using var image = Image.Load(stream);
-            return Read(image);
-        }
-
         public Metadata Read(Image image)
         { 
             var metadata = new Metadata();
@@ -87,6 +43,11 @@ namespace aiimeta.Reader
         }
     }
 
+    /// <summary>Set of extension methods for handling metadata.</summary>
+    /// <remarks>
+    /// This class is only used by <see cref="MetadataReader"/>,
+    /// but C# language specification requires it being a public class. :(
+    /// </remarks>
     public static class MetadataHelpers
     {
         /// <summary>Gets the value of a PNG textural chunk of the specified keyword.</summary>
