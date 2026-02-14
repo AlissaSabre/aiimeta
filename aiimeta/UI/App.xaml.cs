@@ -34,7 +34,11 @@ namespace aiimeta.UI
                     })
                 .AddSingleton<IMetadataReader, MetadataReader>()
                 .AddSingleton<IMetadataParser, AggregateMetadataParser>()
-                .AddSingleton<HttpClient, HttpClient>()
+                .AddSingleton<HttpClient>(provider =>
+                    new HttpClient(new SocketsHttpHandler
+                    {
+                        PooledConnectionLifetime = TimeSpan.FromMinutes(15),
+                    }))
                 .BuildServiceProvider();
         }
 
