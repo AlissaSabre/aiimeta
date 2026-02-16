@@ -65,24 +65,32 @@ namespace aiimeta.UI
             HttpClient.Dispose();
         }
 
-        private void image_DragOver(object sender, DragEventArgs e)
+        private void Window_PreviewDragOver(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop) ||
                 e.Data.GetDataPresent(CFStr.FILEDESCRIPTOR) ||
                 e.Data.GetDataPresent(CFStr.INETURL))
             {
                 e.Effects = DragDropEffects.Copy;
+                e.Handled = true;
             }
-            else
-            {
-                e.Effects = DragDropEffects.None;
-            }
+            // We don't set e.Handled = true in this method
+            // so that other controls on this Window can investigate and handle other types of drop request.
+            // In this version, it is "filename" TextBox that may handle it.
+        }
+
+        private void Window_DragOver(object sender, DragEventArgs e)
+        {
+            // Invokation of this event handler means
+            // no control on this Window wanted to handle this drop request.
+            // Tell that fact to the user.
+            e.Effects = DragDropEffects.None;
             e.Handled = true;
         }
 
-        /// <summary>Receives a file drag-and-drop'ed on the image area.</summary>
-        /// <remarks>When more than one files are dropped, uses only the first one, ignoring others.</remarks>
-        private async void image_Drop(object sender, DragEventArgs e)
+        /// <summary>Receives a file/URL drag-and-drop.</summary>
+        /// <remarks>When more than one files are dropped, uses only the first one and ignores the rest.</remarks>
+        private async void Window_PreviewDrop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {

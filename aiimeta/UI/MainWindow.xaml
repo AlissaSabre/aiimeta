@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:aiimeta.UI"
         mc:Ignorable="d"
+        AllowDrop="True" PreviewDrop="Window_PreviewDrop" PreviewDragOver="Window_PreviewDragOver" DragOver="Window_DragOver"
         Title="aiimeta" Height="500" Width="800" Loaded="Window_Loaded" Closed="Window_Closed">
     <Window.Resources>
         <ResourceDictionary>
@@ -35,7 +36,7 @@
             <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
 
-        <Grid         Grid.Row="0" Grid.Column="0" Grid.RowSpan="6" Background="#A0A0A0" AllowDrop="True" Drop="image_Drop" DragOver="image_DragOver">
+        <Grid         Grid.Row="0" Grid.Column="0" Grid.RowSpan="6" Background="#A0A0A0">
             <TextBlock Text="(Drag and drop an image here.)" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding ElementName=image, Path=ActualWidth, Converter={x:Static local:Converters.IsZero}}" />
             <Image x:Name="image" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
         </Grid>
