@@ -21,5 +21,8 @@ namespace aiimeta.UI
                     new KeyGesture(Key.C, ModifierKeys.Control | ModifierKeys.Shift),
                     new KeyGesture(Key.Insert, ModifierKeys.Control | ModifierKeys.Shift),
                 }));
+
+        /// <summary>Paste command. This is currently an alias of <see cref="ApplicationCommands.Paste"/>.</summary>
+        public static RoutedUICommand Paste { get; } = ApplicationCommands.Paste;
     }
 }

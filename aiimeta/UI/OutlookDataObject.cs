@@ -285,6 +285,7 @@ namespace aiimeta.UI
                     {
                         //use the underlying IDataObject to get the FileGroupDescriptor as a MemoryStream
                         MemoryStream fileGroupDescriptorStream = (MemoryStream)this.underlyingDataObject.GetData("FileGroupDescriptor", autoConvert);
+                        if (fileGroupDescriptorStream == null) return null;
                         byte[] fileGroupDescriptorBytes = new byte[fileGroupDescriptorStream.Length];
                         fileGroupDescriptorStream.Read(fileGroupDescriptorBytes, 0, fileGroupDescriptorBytes.Length);
                         fileGroupDescriptorStream.Close();
@@ -331,6 +332,7 @@ namespace aiimeta.UI
                     {
                         //use the underlying IDataObject to get the FileGroupDescriptorW as a MemoryStream
                         MemoryStream fileGroupDescriptorStream = (MemoryStream)this.underlyingDataObject.GetData("FileGroupDescriptorW");
+                        if (fileGroupDescriptorStream == null) return null;
                         byte[] fileGroupDescriptorBytes = new byte[fileGroupDescriptorStream.Length];
                         fileGroupDescriptorStream.Read(fileGroupDescriptorBytes, 0, fileGroupDescriptorBytes.Length);
                         fileGroupDescriptorStream.Close();

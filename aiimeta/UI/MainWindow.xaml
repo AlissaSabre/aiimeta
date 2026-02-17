@@ -36,9 +36,17 @@
             <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
 
-        <Grid         Grid.Row="0" Grid.Column="0" Grid.RowSpan="6" Background="#A0A0A0">
+        <Grid         Grid.Row="0" Grid.Column="0" Grid.RowSpan="6" Background="#A0A0A0" Focusable="True" PreviewMouseDown="Any_PreviewMouseDown_ToFocus" >
             <TextBlock Text="(Drag and drop an image here.)" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding ElementName=image, Path=ActualWidth, Converter={x:Static local:Converters.IsZero}}" />
             <Image x:Name="image" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Grid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Command="local:Commands.Paste"/>
+                </ContextMenu>
+            </Grid.ContextMenu>
+            <Grid.CommandBindings>
+                <CommandBinding Command="local:Commands.Paste" Executed="Image_Paste_Executed" CanExecute="Image_Paste_CanExecute"/>
+            </Grid.CommandBindings>
         </Grid>
 
         <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="6" Width="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="Transparent"/>

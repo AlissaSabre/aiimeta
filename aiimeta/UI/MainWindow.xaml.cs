@@ -65,6 +65,20 @@ namespace aiimeta.UI
             HttpClient.Dispose();
         }
 
+        /// <summary>Checks if the current clipboard content is suitable for pasting as an image.</summary>
+        /// <remarks>Current version only checks the clipboard data format.</remarks>
+        private void Image_Paste_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        {
+            var data = Clipboard.GetDataObject();
+            if (data is null) return;
+            e.CanExecute |=
+                data.GetDataPresent(DataFormats.FileDrop) ||
+                data.GetDataPresent(CFStr.FILEDESCRIPTOR) ||
+                data.GetDataPresent(CFStr.INETURL);
+        }
+
+        /// <summary>Checks if the current drag-and-drop content is suitable for dropping as an image.</summary>
+        /// <remarks>Current version only checks the clipboard data format.</remarks>
         private void Window_PreviewDragOver(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop) ||
@@ -88,50 +102,57 @@ namespace aiimeta.UI
             e.Handled = true;
         }
 
+        /// <summary>Pastes an image file from the clipboard.</summary>
+        private async void Image_Paste_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            var data = Clipboard.GetDataObject();
+            if (data is null) return;
+            e.Handled |= await LoadDataObjectAsImageAsync(data);
+        }
+
         /// <summary>Receives a file/URL drag-and-drop.</summary>
         /// <remarks>When more than one files are dropped, uses only the first one and ignores the rest.</remarks>
         private async void Window_PreviewDrop(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            e.Handled |= await LoadDataObjectAsImageAsync(e.Data);
+        }
+
+        /// <summary>Loads the clipboard data object as an image.</summary>
+        /// <param name="original_data">IDataObject instance likely containing an image.</param>
+        /// <returns>True if an image is loaded. False otherwise.</returns>
+        /// <remarks>
+        /// If the data object content is a file or equivalent,
+        /// this method tries to decode and load it as an image.
+        /// If it the decoding fails, i.e., the file was not an image of known format,
+        /// this method shows an error message and returns true.
+        /// </remarks>
+        private async Task<bool> LoadDataObjectAsImageAsync(IDataObject original_data)
+        {
+            var data = new OutlookDataObject(original_data);
+            if (data.GetData(DataFormats.FileDrop) is string[] paths
+                && paths.Length >= 1)
             {
-                var paths = e.Data.GetData(DataFormats.FileDrop) as string[];
-                if (paths?.Length >= 1)
-                {
-                    await LoadImageAsync(paths[0]);
-                    e.Handled = true;
-                    return;
-                }
+                return await LoadImageAsync(paths[0]);
             }
-            if (e.Data.GetDataPresent(CFStr.FILEDESCRIPTOR))
+            if (data.GetData(CFStr.FILEDESCRIPTOR) is string[] names
+                && names.Length >= 1)
             {
-                var data = new OutlookDataObject(e.Data);
-                var names = data.GetData(CFStr.FILEDESCRIPTOR) as string[];
-                if (names?.Length >= 1)
-                {
-                    // CFSTR_FILEDESCEIPTOR-based drag-and-drop sends only file names,
-                    // and directory paths or other information on their locations
-                    // are unavailable.
-                    // If CFSTR_INETURL is also present,
-                    // it is likely that the file is from the internet,
-                    // and the CFSTR_INETURL content is (by specification) an absolute URL.
-                    // So, we try to grab the URL and handle it like a full path name.
-                    var stream = data.GetData(CFStr.FILECONTENTS, 0);
-                    var url = data.GetData(CFStr.INETURL)?.AsString() ?? names[0];
-                    await LoadImageAsync(stream, names[0], url);
-                    e.Handled = true;
-                    return;
-                }
+                // CFSTR_FILEDESCEIPTOR-based drag-and-drop sends only file names,
+                // and directory paths or other information on their locations
+                // are unavailable.
+                // If CFSTR_INETURL is also present,
+                // it is likely that the file is from the internet,
+                // and the CFSTR_INETURL content is (by specification) an absolute URL.
+                // So, we try to grab the URL and handle it like a full path name.
+                var stream = data.GetData(CFStr.FILECONTENTS, 0);
+                var full_name = data.GetData(CFStr.INETURL)?.AsString() ?? names[0];
+                return await LoadImageAsync(stream, names[0], full_name);
             }
-            if (e.Data.GetDataPresent(CFStr.INETURL))
+            if (data.GetData(CFStr.INETURL)?.AsString() is string url)
             {
-                var url = e.Data.GetData(CFStr.INETURL)?.AsString();
-                if (url is not null)
-                {
-                    await LoadImageAsync(new Uri(url));
-                    e.Handled = true;
-                    return;
-                }
+                return await LoadImageAsync(new Uri(url));
             }
+            return false;
         }
 
         private async void FileOpenButton_Click(object sender, RoutedEventArgs e)
@@ -152,35 +173,39 @@ namespace aiimeta.UI
 
         #region Image file loading
 
-        private Task LoadImageAsync(string path)
+        private Task<bool> LoadImageAsync(string path)
         {
             return LoadImageCoreAsync(() => ImageFactory.Create(path));
         }
 
-        private Task LoadImageAsync(Uri uri)
+        private Task<bool> LoadImageAsync(Uri uri)
         {
             return LoadImageCoreAsync(() => ImageFactory.Create(uri));
         }
 
-        private Task LoadImageAsync(Stream stream, string name, string full_name)
+        private Task<bool> LoadImageAsync(Stream stream, string name, string full_name)
         {
             return LoadImageCoreAsync(() => ImageFactory.Create(stream, name, full_name));
         }
 
-        private async Task LoadImageCoreAsync(Func<IImageObject> create_image)
+        private async Task<bool> LoadImageCoreAsync(Func<IImageObject> create_image)
         {
+            bool result;
             Mouse.OverrideCursor = Cursors.Wait;
             IsEnabled = false;
             try
             {
                 await LoadImageCoreCoreAsync(create_image);
+                result = true;
             }
             catch (Exception exception)
             {
                 MessageBox.Show(exception.ToString());
+                result = false;
             }
             IsEnabled = true;
             Mouse.OverrideCursor = null;
+            return result;
         }
 
         private async Task LoadImageCoreCoreAsync(Func<IImageObject> create_image)
@@ -289,6 +314,16 @@ namespace aiimeta.UI
 
             // Set the new width if it is wide enough.
             grid_view.Columns[column_count - 1].Width = Math.Max(available_width, InitialColumnWidth);
+        }
+
+        /// <summary>Focuses an UIElement when the mouse button is pressed on it.</summary>
+        /// <remarks>
+        /// This is a general purpose event handler to focus an UIElement
+        /// that usually does not get a keyboard focus.
+        /// </remarks>
+        private void Any_PreviewMouseDown_ToFocus(object sender, MouseButtonEventArgs e)
+        {
+            (sender as UIElement)?.Focus();
         }
     }
 }
