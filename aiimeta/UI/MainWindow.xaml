@@ -44,7 +44,7 @@
         <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="6" Width="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="Transparent"/>
 
         <TextBox      Grid.Row="0" Grid.Column="2" x:Name="filename" Margin="0,0,40,10" TextWrapping="NoWrap" VerticalAlignment="Top"/>
-        <Button       Grid.Row="0" Grid.Column="2" Content="&#xE710;" Style="{StaticResource SymbolButton}" Margin="0,0,5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Click="fileOpenButton_Click"/>
+        <Button       Grid.Row="0" Grid.Column="2" Content="&#xE710;" Style="{StaticResource SymbolButton}" Margin="0,0,5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Click="FileOpenButton_Click"/>
 
         <local:TextBoxWithCopyButton
                       Grid.Row="1" Grid.Column="2" x:Name="positive" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,5,0"/>
@@ -58,7 +58,7 @@
 
         <TabControl   Grid.Row="5" Grid.Column="2" x:Name="metadataArea" Margin="0,0,5,0" TabStripPlacement="Bottom" Padding="0">
             <TabItem Header="Metadata">
-                <ListView x:Name="metadataList" d:ItemsSource="{d:SampleData ItemCount=5}" Background="{DynamicResource TextControlBackground}" BorderBrush="{DynamicResource TextControlElevationBorderBrush}" SizeChanged="metadataList_SizeChanged" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <ListView x:Name="metadataList" d:ItemsSource="{d:SampleData ItemCount=5}" Background="{DynamicResource TextControlBackground}" BorderBrush="{DynamicResource TextControlElevationBorderBrush}" SizeChanged="MetadataList_SizeChanged" ScrollViewer.VerticalScrollBarVisibility="Auto">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Key" DisplayMemberBinding="{Binding Key}" Width="120"/>
@@ -91,8 +91,8 @@
                         </ContextMenu>
                     </ListView.ContextMenu>
                     <ListView.CommandBindings>
-                        <CommandBinding Command="local:Commands.Copy"    Executed="metadataList_Command_Executed" CanExecute="metadataList_Command_CanExecute"/>
-                        <CommandBinding Command="local:Commands.CopyRow" Executed="metadataList_Command_Executed" CanExecute="metadataList_Command_CanExecute"/>
+                        <CommandBinding Command="local:Commands.Copy"    Executed="MetadataList_Command_Executed" CanExecute="MetadataList_Command_CanExecute"/>
+                        <CommandBinding Command="local:Commands.CopyRow" Executed="MetadataList_Command_Executed" CanExecute="MetadataList_Command_CanExecute"/>
                     </ListView.CommandBindings>
                 </ListView>
             </TabItem>

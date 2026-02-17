@@ -134,7 +134,7 @@ namespace aiimeta.UI
             }
         }
 
-        private async void fileOpenButton_Click(object sender, RoutedEventArgs e)
+        private async void FileOpenButton_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new OpenFileDialog
             {
@@ -220,7 +220,7 @@ namespace aiimeta.UI
 
         #endregion
 
-        private void metadataList_Command_Executed(object sender, ExecutedRoutedEventArgs e)
+        private void MetadataList_Command_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             var view = sender as ListView;
             if (view is null) return;
@@ -243,7 +243,7 @@ namespace aiimeta.UI
                 .Replace("\r", "\\r")
                 .Replace("\t", "\\t");
 
-        private void metadataList_Command_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+        private void MetadataList_Command_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = (sender as ListView)?.SelectedIndex >= 0;
         }
@@ -256,7 +256,7 @@ namespace aiimeta.UI
         /// <remarks>The value 0.0 is a flag indicating "not initialized yet".</remarks>
         private double InitialColumnWidth = 0.0;
 
-        private void metadataList_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void MetadataList_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             // Let the last (i.e., "Value" in our case) column occupy all available space.
             // This code should work fine as long as the user doesn't modify column widths manually.
