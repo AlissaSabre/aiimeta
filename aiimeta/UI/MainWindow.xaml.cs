@@ -75,6 +75,7 @@ namespace aiimeta.UI
                 data.GetDataPresent(DataFormats.FileDrop) ||
                 data.GetDataPresent(CFStr.FILEDESCRIPTOR) ||
                 data.GetDataPresent(CFStr.INETURL);
+            e.Handled = true;
         }
 
         /// <summary>Checks if the current drag-and-drop content is suitable for dropping as an image.</summary>
@@ -107,24 +108,34 @@ namespace aiimeta.UI
         {
             var data = Clipboard.GetDataObject();
             if (data is null) return;
-            e.Handled |= await LoadDataObjectAsImageAsync(data);
+            if (!await LoadDataObjectAsImageAsync(data))
+            {
+                MessageBox.Show(
+                    "Unable to load the pasted file as an image.",
+                    OriginalTitle, MessageBoxButton.OK);
+            }
+            e.Handled = true;
         }
 
         /// <summary>Receives a file/URL drag-and-drop.</summary>
         /// <remarks>When more than one files are dropped, uses only the first one and ignores the rest.</remarks>
         private async void Window_PreviewDrop(object sender, DragEventArgs e)
         {
-            e.Handled |= await LoadDataObjectAsImageAsync(e.Data);
+            if (!await LoadDataObjectAsImageAsync(e.Data))
+            {
+                MessageBox.Show(
+                    "Unable to load the dropped file as an image.",
+                    OriginalTitle, MessageBoxButton.OK);
+            }
+            e.Handled = true;
         }
 
-        /// <summary>Loads the clipboard data object as an image.</summary>
+        /// <summary>Loads the Clipboard/DragDrop data object as an image.</summary>
         /// <param name="original_data">IDataObject instance likely containing an image.</param>
         /// <returns>True if an image is loaded. False otherwise.</returns>
         /// <remarks>
-        /// If the data object content is a file or equivalent,
-        /// this method tries to decode and load it as an image.
-        /// If it the decoding fails, i.e., the file was not an image of known format,
-        /// this method shows an error message and returns true.
+        /// If the data object content represents a file-like object,
+        /// this method tries to decode and load it as an image file.
         /// </remarks>
         private async Task<bool> LoadDataObjectAsImageAsync(IDataObject original_data)
         {
@@ -190,7 +201,7 @@ namespace aiimeta.UI
 
         private async Task<bool> LoadImageCoreAsync(Func<IImageObject> create_image)
         {
-            bool result;
+            bool result = false;
             Mouse.OverrideCursor = Cursors.Wait;
             IsEnabled = false;
             try
@@ -198,10 +209,9 @@ namespace aiimeta.UI
                 await LoadImageCoreCoreAsync(create_image);
                 result = true;
             }
-            catch (Exception exception)
+            catch (Exception)
             {
-                MessageBox.Show(exception.ToString());
-                result = false;
+                // MessageBox.Show(exception.ToString());
             }
             IsEnabled = true;
             Mouse.OverrideCursor = null;
