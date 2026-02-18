@@ -37,7 +37,7 @@
         </Grid.ColumnDefinitions>
 
         <Grid         Grid.Row="0" Grid.Column="0" Grid.RowSpan="6" Background="#A0A0A0" Focusable="True" PreviewMouseDown="Any_PreviewMouseDown_ToFocus" >
-            <TextBlock Text="(Drag and drop an image here.)" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding ElementName=image, Path=ActualWidth, Converter={x:Static local:Converters.IsZero}}" />
+            <TextBlock Text="Drag and drop or paste an image here." VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="{Binding ElementName=image, Path=ActualWidth, Converter={x:Static local:Converters.IsZero}}" TextWrapping="Wrap" TextAlignment="Center" />
             <Image x:Name="image" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Grid.ContextMenu>
                 <ContextMenu>
