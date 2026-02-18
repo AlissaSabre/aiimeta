@@ -141,9 +141,10 @@ namespace aiimeta.UI
         {
             var data = new OutlookDataObject(original_data);
             if (data.GetData(DataFormats.FileDrop) is string[] paths
-                && paths.Length >= 1)
+                && paths.Length >= 1
+                && await LoadImageAsync(paths[0]))
             {
-                return await LoadImageAsync(paths[0]);
+                return true;
             }
             if (data.GetData(CFStr.FILEDESCRIPTOR) is string[] names
                 && names.Length >= 1)
@@ -157,11 +158,15 @@ namespace aiimeta.UI
                 // So, we try to grab the URL and handle it like a full path name.
                 var stream = data.GetData(CFStr.FILECONTENTS, 0);
                 var full_name = data.GetData(CFStr.INETURL)?.AsString() ?? names[0];
-                return await LoadImageAsync(stream, names[0], full_name);
+                if (await LoadImageAsync(stream, names[0], full_name))
+                {
+                    return true; 
+                }
             }
-            if (data.GetData(CFStr.INETURL)?.AsString() is string url)
+            if (data.GetData(CFStr.INETURL)?.AsString() is string url
+                && await LoadImageAsync(new Uri(url)))
             {
-                return await LoadImageAsync(new Uri(url));
+                return true;
             }
             return false;
         }
