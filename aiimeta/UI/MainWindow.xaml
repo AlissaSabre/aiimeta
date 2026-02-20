@@ -51,8 +51,8 @@
 
         <GridSplitter Grid.Row="0" Grid.Column="1" Grid.RowSpan="6" Width="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="Transparent"/>
 
-        <TextBox      Grid.Row="0" Grid.Column="2" x:Name="filename" Margin="0,0,40,10" TextWrapping="NoWrap" VerticalAlignment="Top"/>
-        <Button       Grid.Row="0" Grid.Column="2" Content="&#xE710;" Style="{StaticResource SymbolButton}" Margin="0,0,5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Click="FileOpenButton_Click"/>
+        <TextBox      Grid.Row="0" Grid.Column="2" x:Name="filename" ToolTip="URL or file path to the image." Margin="0,0,40,10" TextWrapping="NoWrap" VerticalAlignment="Top"/>
+        <Button       Grid.Row="0" Grid.Column="2" Content="&#xE710;" ToolTip="Click to open a local image file." Style="{StaticResource SymbolButton}" Margin="0,0,5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Click="FileOpenButton_Click"/>
 
         <local:TextBoxWithCopyButton
                       Grid.Row="1" Grid.Column="2" x:Name="positive" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,5,0"/>
