@@ -65,7 +65,7 @@
         <GridSplitter Grid.Row="4" Grid.Column="2" Height="10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="Transparent"/>
 
         <TabControl   Grid.Row="5" Grid.Column="2" x:Name="metadataArea" Margin="0,0,5,0" TabStripPlacement="Bottom" Padding="0">
-            <TabItem Header="Metadata">
+            <TabItem Header="Summary">
                 <ListView x:Name="metadataList" d:ItemsSource="{d:SampleData ItemCount=5}" Background="{DynamicResource TextControlBackground}" BorderBrush="{DynamicResource TextControlElevationBorderBrush}" SizeChanged="MetadataList_SizeChanged" ScrollViewer.VerticalScrollBarVisibility="Auto">
                     <ListView.View>
                         <GridView>
