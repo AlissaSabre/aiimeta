@@ -156,7 +156,9 @@ namespace aiimeta.UI
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.StreamSource = image_object.GetPreviewStream();
+            bitmap.StreamSource = image_object.GetPreviewStream(
+                (int)SystemParameters.PrimaryScreenWidth / 2,
+                (int)SystemParameters.PrimaryScreenHeight / 2);
             bitmap.EndInit();
             bitmap.Freeze();
             image.Source = bitmap;

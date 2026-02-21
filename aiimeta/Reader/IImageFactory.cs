@@ -53,8 +53,13 @@ namespace aiimeta.Reader
         IParsedMetadata ParsedMetadata { get; }
 
         /// <summary>Image data suitable for preview on the screen.</summary>
+        /// <param name="max_width_hint">Hint on the maximum preview width, or 0 if no hint.</param>
+        /// <param name="max_height_hint">Hint on the maximum preview height, or 0 if no hint.</param>
         /// <returns>Memory stream containing the preview image bytes.</returns>
-        /// <remarks>A preview image may have lower quality than the original.</remarks>
-        MemoryStream GetPreviewStream();
+        /// <remarks>
+        /// A preview image may have lower quality than the original.
+        /// Also, the size of the preview may be reduced from the original.
+        /// </remarks>
+        MemoryStream GetPreviewStream(int max_width_hint = 0, int max_height_hint = 0);
     }
 }

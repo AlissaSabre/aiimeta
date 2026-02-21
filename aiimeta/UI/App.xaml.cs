@@ -23,15 +23,7 @@ namespace aiimeta.UI
 
             ServiceProvider = new ServiceCollection()
                 .AddSingleton<MainWindow, MainWindow>()
-                .AddSingleton<IImageFactory>(provider =>
-                    new ImageFactory(
-                        provider.GetRequiredService<IMetadataReader>(),
-                        provider.GetRequiredService<IMetadataParser>(),
-                        provider.GetRequiredService<HttpClient>())
-                    {
-                        MaxPreviewWidth = SystemParameters.PrimaryScreenWidth * 0.5,
-                        MaxPreviewHeight = SystemParameters.PrimaryScreenHeight * 0.5,
-                    })
+                .AddSingleton<IImageFactory, ImageFactory>()
                 .AddSingleton<IMetadataReader, MetadataReader>()
                 .AddSingleton<IMetadataParser, AggregateMetadataParser>()
                 .AddSingleton<HttpClient>(provider =>

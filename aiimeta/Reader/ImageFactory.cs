@@ -42,12 +42,6 @@ namespace aiimeta.Reader
         /// </remarks>
         public string ImageFormat { get; set; } = "{0}, {1} × {2}";
 
-        /// <summary>Maximum width of the preview image.</summary>
-        public double MaxPreviewWidth { get; set; } = int.MaxValue;
-
-        /// <summary>Maximum height of the preview image.</summary>
-        public double MaxPreviewHeight { get; set; } = int.MaxValue;
-
         /// <summary>Creates an image object for an OS file.</summary>
         /// <param name="path">Full path name of the OS file.</param>
         public IImageObject Create(string path)
@@ -99,18 +93,21 @@ namespace aiimeta.Reader
             return parsed;
         }
 
-        protected MemoryStream GetPreviewStream(Image image)
+        protected MemoryStream GetPreviewStream(Image image, int max_width_hint, int max_height_hint)
         {
+            if (max_width_hint <= 0) max_width_hint = int.MaxValue;
+            if (max_height_hint <= 0) max_height_hint = int.MaxValue;
+
             // Resize the image if it is too large.
             var i = image;
-            if (image.Width > MaxPreviewWidth || image.Height > MaxPreviewHeight)
+            if (image.Width > max_width_hint || image.Height > max_height_hint)
             {
-                var wratio = MaxPreviewWidth / image.Width;
-                var hratio = MaxPreviewHeight / image.Height;
+                var wratio = (float)max_width_hint / image.Width;
+                var hratio = (float)max_height_hint / image.Height;
                 var (w, h) = wratio < hratio
-                    ? ((int)(image.Width * wratio), 0)
-                    : (0, (int)(image.Height * hratio));
-                i = image.Clone(x => x.Resize(w, h));
+                    ? (image.Width * wratio, 0f)
+                    : (0f, image.Height * hratio);
+                i = image.Clone(x => x.Resize((int)w, (int)h));
             }
 
             // Create and return a PNG image stream.
@@ -160,7 +157,8 @@ namespace aiimeta.Reader
                 GC.SuppressFinalize(this);
             }
 
-            public MemoryStream GetPreviewStream() => Factory.GetPreviewStream(Image);
+            public MemoryStream GetPreviewStream(int max_width_hint = 0, int max_height_hint = 0)
+                => Factory.GetPreviewStream(Image, max_width_hint, max_height_hint);
         }
     }
 }
