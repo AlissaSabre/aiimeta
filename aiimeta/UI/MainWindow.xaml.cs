@@ -11,7 +11,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 
-using aiimeta.Formats;
 using aiimeta.Reader;
 
 namespace aiimeta.UI
@@ -29,41 +28,14 @@ namespace aiimeta.UI
         /// <summary>App title as defined in XAML.</summary>
         private string OriginalTitle;
 
-        public MainWindow()
+        public MainWindow(IImageFactory image_factory)
         {
             InitializeComponent();
             OriginalTitle = Title;
-
-            // Creates an ImageFactory instance.
-            // Since we don't use a DI framework,
-            // we need to keep its subcomponents and dispose them appropriately.
-            HttpClient = new HttpClient();
-            MetadataReader = new MetadataReader(HttpClient);
-            var parser = new AggregateMetadataParser();
-            ImageFactory = new ImageFactory(MetadataReader, parser, HttpClient)
-            {
-                MaxPreviewWidth  = SystemParameters.PrimaryScreenWidth  * 0.5,
-                MaxPreviewHeight = SystemParameters.PrimaryScreenHeight * 0.5,
-            };
+            ImageFactory = image_factory;
         }
 
-        private HttpClient HttpClient;
-
-        private MetadataReader MetadataReader;
-
-        private ImageFactory ImageFactory;
-
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            // In this version, we do all required initialization in the constructor,
-            // and we have nothing to do here.
-        }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            MetadataReader.Dispose();
-            HttpClient.Dispose();
-        }
+        private readonly IImageFactory ImageFactory;
 
         /// <summary>Checks if the current clipboard content is suitable for pasting as an image.</summary>
         /// <remarks>Current version only checks the clipboard data format.</remarks>
@@ -232,7 +204,9 @@ namespace aiimeta.UI
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
             bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.StreamSource = image_object.GetPreviewStream();
+            bitmap.StreamSource = image_object.GetPreviewStream(
+                (int)SystemParameters.PrimaryScreenWidth / 2,
+                (int)SystemParameters.PrimaryScreenHeight / 2);
             bitmap.EndInit();
             bitmap.Freeze();
             image.Source = bitmap;

@@ -8,29 +8,19 @@ using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 
+using aiimeta.Formats;
+
 namespace aiimeta.Reader
 {
-    public interface IImageObject : IDisposable
+    public class ImageFactory : IImageFactory
     {
-        string Name { get; }
-        string FullName { get; }
+        private readonly IMetadataReader MetadataReader;
 
-        Metadata Metadata { get; }
-
-        ParsedMetadata ParsedMetadata { get; }
-
-        MemoryStream GetPreviewStream();
-    }
-
-    public class ImageFactory
-    {
-        private readonly MetadataReader MetadataReader;
-
-        private readonly AggregateMetadataParser MetadataParser;
+        private readonly IMetadataParser MetadataParser;
 
         private readonly HttpClient HttpClient;
 
-        public ImageFactory(MetadataReader reader, AggregateMetadataParser parser, HttpClient http)
+        public ImageFactory(IMetadataReader reader, IMetadataParser parser, HttpClient http)
         {
             MetadataReader = reader;
             MetadataParser = parser;
@@ -51,12 +41,6 @@ namespace aiimeta.Reader
         /// </list>
         /// </remarks>
         public string ImageFormat { get; set; } = "{0}, {1} × {2}";
-
-        /// <summary>Maximum width of the preview image.</summary>
-        public double MaxPreviewWidth { get; set; } = int.MaxValue;
-
-        /// <summary>Maximum height of the preview image.</summary>
-        public double MaxPreviewHeight { get; set; } = int.MaxValue;
 
         /// <summary>Creates an image object for an OS file.</summary>
         /// <param name="path">Full path name of the OS file.</param>
@@ -100,7 +84,7 @@ namespace aiimeta.Reader
             return MetadataReader.Read(image);
         }
 
-        protected ParsedMetadata GetParsedMetadata(Metadata metadata)
+        protected ParsedMetadata GetParsedMetadata(IMetadata metadata)
         {
             var parsed = new ParsedMetadata();
             parsed.Add(ImageKey, string.Format(ImageFormat, 
@@ -109,18 +93,21 @@ namespace aiimeta.Reader
             return parsed;
         }
 
-        protected MemoryStream GetPreviewStream(Image image)
+        protected MemoryStream GetPreviewStream(Image image, int max_width_hint, int max_height_hint)
         {
+            if (max_width_hint <= 0) max_width_hint = int.MaxValue;
+            if (max_height_hint <= 0) max_height_hint = int.MaxValue;
+
             // Resize the image if it is too large.
             var i = image;
-            if (image.Width > MaxPreviewWidth || image.Height > MaxPreviewHeight)
+            if (image.Width > max_width_hint || image.Height > max_height_hint)
             {
-                var wratio = MaxPreviewWidth / image.Width;
-                var hratio = MaxPreviewHeight / image.Height;
+                var wratio = (float)max_width_hint / image.Width;
+                var hratio = (float)max_height_hint / image.Height;
                 var (w, h) = wratio < hratio
-                    ? ((int)(image.Width * wratio), 0)
-                    : (0, (int)(image.Height * hratio));
-                i = image.Clone(x => x.Resize(w, h));
+                    ? (image.Width * wratio, 0f)
+                    : (0f, image.Height * hratio);
+                i = image.Clone(x => x.Resize((int)w, (int)h));
             }
 
             // Create and return a PNG image stream.
@@ -140,13 +127,13 @@ namespace aiimeta.Reader
 
             public string FullName { get; }
 
-            private Metadata? _Metadata = null;
+            private IMetadata? _Metadata = null;
 
-            public Metadata Metadata => _Metadata ?? (_Metadata = Factory.GetMetadata(Image));
+            public IMetadata Metadata => _Metadata ?? (_Metadata = Factory.GetMetadata(Image));
 
-            private ParsedMetadata? _ParsedMetadata = null;
+            private IParsedMetadata? _ParsedMetadata = null;
 
-            public ParsedMetadata ParsedMetadata => _ParsedMetadata ?? (_ParsedMetadata = Factory.GetParsedMetadata(Metadata));
+            public IParsedMetadata ParsedMetadata => _ParsedMetadata ?? (_ParsedMetadata = Factory.GetParsedMetadata(Metadata));
 
             public ImageObject(ImageFactory factory, Image image, string name, string full_name)
             {
@@ -170,7 +157,8 @@ namespace aiimeta.Reader
                 GC.SuppressFinalize(this);
             }
 
-            public MemoryStream GetPreviewStream() => Factory.GetPreviewStream(Image);
+            public MemoryStream GetPreviewStream(int max_width_hint = 0, int max_height_hint = 0)
+                => Factory.GetPreviewStream(Image, max_width_hint, max_height_hint);
         }
     }
 }
